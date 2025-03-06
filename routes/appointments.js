@@ -1,18 +1,19 @@
-const express = require("express");
+import express from "express";
+import Appointment from "../models/Appointment.js";
+
 const router = express.Router();
-const Appointment = require("../models/Appointment");
 
 // Existing GET endpoint for appointments list
 router.get("/", async (req, res) => {
   try {
     const { startDate, endDate, status, paymentStatus, clientName, phone } = req.query;
     const query = {};
-    if (startDate) query.startTime = { $gte: new Date(startDate) }; // Single date filter
-    if (endDate) query.startTime = { $lte: new Date(endDate) }; // Optional end date for completeness
+    if (startDate) query.startTime = { $gte: new Date(startDate) };
+    if (endDate) query.startTime = { $lte: new Date(endDate) };
     if (status) query.status = status;
     if (paymentStatus) query.paymentStatus = paymentStatus;
-    if (clientName) query["clientId.name"] = { $regex: clientName, $options: "i" }; // Filter by client name (case-insensitive)
-    if (phone) query["clientId.phone"] = { $regex: phone, $options: "i" }; // Filter by phone number (case-insensitive)
+    if (clientName) query["clientId.name"] = { $regex: clientName, $options: "i" };
+    if (phone) query["clientId.phone"] = { $regex: phone, $options: "i" };
     console.log("MongoDB query:", query);
     const appointments = await Appointment.find(query)
       .populate("clientId", "name email phone areasOfConcern")
@@ -31,7 +32,7 @@ router.get("/client/:clientId", async (req, res) => {
     const clientId = req.params.clientId;
     const history = await Appointment.find({ clientId })
       .populate("clientId", "name email phone areasOfConcern")
-      .sort({ startTime: -1 }); // Sort by most recent first
+      .sort({ startTime: -1 });
     console.log("Client history found:", history);
     res.status(200).json(history);
   } catch (error) {
@@ -48,7 +49,6 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Missing required fields (clientId, treatment, duration, and startTime are required)" });
     }
 
-    // Validate startTime format (ISO 8601 or Date string)
     const parsedStartTime = new Date(startTime);
     if (isNaN(parsedStartTime.getTime())) {
       return res.status(400).json({ message: "Invalid startTime format. Use ISO 8601 or a valid Date string (e.g., '2025-03-15T14:00:00Z')" });
@@ -59,7 +59,7 @@ router.post("/", async (req, res) => {
       treatment,
       duration,
       startTime: parsedStartTime,
-      paymentStatus: paymentStatus || "Unpaid"
+      paymentStatus: paymentStatus || "Unpaid",
     });
     await appointment.save();
     res.status(201).json(appointment);
@@ -106,4 +106,4 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
