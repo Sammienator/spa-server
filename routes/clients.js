@@ -39,4 +39,24 @@ router.post('/', async (req, res) => {
   }
 });
 
+// PUT update client areas of concern
+router.put('/:id', async (req, res) => {
+  try {
+    const { areasOfConcern } = req.body;
+    const client = await Client.findByIdAndUpdate(
+      req.params.id,
+      { areasOfConcern },
+      { new: true, runValidators: true }
+    );
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found' });
+    }
+    console.log(`Client updated: ${client._id}`);
+    res.status(200).json(client);
+  } catch (error) {
+    console.error('Error updating client:', error);
+    res.status(400).json({ message: 'Failed to update client', error: error.message });
+  }
+});
+
 export default router;
