@@ -9,13 +9,32 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: 'https://spa-client-jpmrpuylf-sammienators-projects.vercel.app' }));
-app.use(express.json());
+// CORS configuration
+const allowedOrigins = [
+  'https://spa-client-git-main-sammienators-projects.vercel.app', // New deployment URL
+  
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g., curl) or if origin is in allowed list
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, origin);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 app.use((req, res, next) => {
+  console.log(`Request Origin: ${req.headers.origin}`);
   console.log(`${req.method} ${req.path}`);
   next();
 });
+
+app.use(express.json());
 
 app.get('/', (req, res) => res.status(200).send('Backend is running!'));
 
