@@ -12,18 +12,17 @@ const app = express();
 // CORS configuration
 const allowedOrigins = [
   'https://spa-client-git-main-sammienators-projects.vercel.app',
-  'https://www.shunem.vercel.app',
-  'http://localhost:3000',
+  'https://shunem.vercel.app', // Exact match for your custom domain
+  'http://localhost:3000', // Local dev
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow if no origin (e.g., curl) or if in allowed list
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true); // Return true to set the origin header dynamically
+      callback(null, true); // Allow request
     } else {
       console.log(`Blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+      callback(null, false); // Deny gracefully
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
