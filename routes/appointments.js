@@ -18,13 +18,14 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Remove this if not needed, as logs show it's called but not implemented
+// Support /appointments/client/:clientId as seen in logs
 router.get("/client/:clientId", async (req, res) => {
   try {
     const appointments = await Appointment.find({ clientId: req.params.clientId }).populate("clientId");
+    if (!appointments) return res.status(404).json({ message: "No appointments found for this client" });
     res.status(200).json(appointments);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch client appointments", error: error.message });
+    res.status(400).json({ message: "Failed to fetch client appointments", error: error.message });
   }
 });
 
