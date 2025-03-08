@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import appointmentRoutes from './routes/appointments.js';
-import clientRoutes from './routes/clients.js'; // Add this
+import clientRoutes from './routes/clients.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -18,8 +18,9 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => res.status(200).send('Backend is running!'));
+
 app.use('/appointments', appointmentRoutes);
-app.use('/clients', clientRoutes); // Add this
+app.use('/clients', clientRoutes);
 
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
