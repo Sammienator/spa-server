@@ -14,6 +14,7 @@ router.get('/', async (req, res) => {
       ],
     } : {};
     const clients = await Client.find(query);
+    console.log(`Clients found: ${clients.length}`);
     res.status(200).json(clients);
   } catch (error) {
     console.error('Error fetching clients:', error);
@@ -30,6 +31,7 @@ router.post('/', async (req, res) => {
     }
     const client = new Client({ name, email, phone, areasOfConcern });
     await client.save();
+    console.log(`Client created: ${client._id}`);
     res.status(201).json(client);
   } catch (error) {
     console.error('Error creating client:', error);

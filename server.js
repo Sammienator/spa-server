@@ -11,16 +11,18 @@ const app = express();
 
 // CORS configuration
 const allowedOrigins = [
-  'https://spa-client-git-main-sammienators-projects.vercel.app', // New deployment URL
-  
+  'https://spa-client-git-main-sammienators-projects.vercel.app',
+  'https://www.shunem.vercel.app',
+  'http://localhost:3000',
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g., curl) or if origin is in allowed list
+    // Allow if no origin (e.g., curl) or if in allowed list
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, origin);
+      callback(null, true); // Return true to set the origin header dynamically
     } else {
+      console.log(`Blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -28,6 +30,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+// Request logging
 app.use((req, res, next) => {
   console.log(`Request Origin: ${req.headers.origin}`);
   console.log(`${req.method} ${req.path}`);
@@ -36,10 +39,18 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+// Basic route
 app.get('/', (req, res) => res.status(200).send('Backend is running!'));
 
+// Routes
 app.use('/appointments', appointmentRoutes);
 app.use('/clients', clientRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err.message);
+  res.status(500).json({ message: 'Internal Server Error', error: err.message });
+});
 
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
